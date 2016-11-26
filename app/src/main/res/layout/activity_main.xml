@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.mahendran_sakkarai.contacts_dashboard.MainActivity">
+    tools:context="com.mahendran_sakkarai.contacts_dashboard.contacts.ContactsActivity">
 
     <RelativeLayout
         android:id="@+id/container_layout"
