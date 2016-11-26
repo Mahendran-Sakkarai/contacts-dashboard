@@ -1,4 +1,4 @@
-package contacts_dashboard.mahendran_sakkarai.com;
+package com.mahendran_sakkarai.contacts_dashboard;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

@@ -1,4 +1,4 @@
-package contacts_dashboard.mahendran_sakkarai.com;
+package com.mahendran_sakkarai.contacts_dashboard;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("contacts_dashboard.mahendran_sakkarai.com", appContext.getPackageName());
+        assertEquals("com.mahendran_sakkarai.contacts_dashboard", appContext.getPackageName());
     }
 }
