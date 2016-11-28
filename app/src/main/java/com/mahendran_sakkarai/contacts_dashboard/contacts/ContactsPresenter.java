@@ -9,10 +9,18 @@ import java.util.List;
 public class ContactsPresenter implements ContactsContract.Presenter{
     private final ContactsContract.View mViewInstance;
     private final DataSource mDataSource;
+    private final ContactsContract.ActivityCommunicator mActivityCommunicator;
+    private boolean mContactPermission;
+    private boolean mCallLogPermission;
 
-    public ContactsPresenter(ContactsContract.View contactsView, DataSource dataSource) {
+    public ContactsPresenter(ContactsContract.View contactsView, DataSource dataSource,
+                             ContactsContract.ActivityCommunicator communicator) {
         this.mViewInstance = contactsView;
         this.mDataSource = dataSource;
+        this.mActivityCommunicator = communicator;
+
+        mCallLogPermission = false;
+        mContactPermission = false;
 
         mViewInstance.setPresenter(this);
     }
@@ -33,5 +41,27 @@ public class ContactsPresenter implements ContactsContract.Presenter{
                 }
             });
         }
+    }
+
+    @Override
+    public void callLogPermissionGranted() {
+        mCallLogPermission = true;
+    }
+
+    @Override
+    public void callLogPermissionDenied() {
+        mCallLogPermission = false;
+        mActivityCommunicator.checkCallLogPermission();
+    }
+
+    @Override
+    public void contactPermissionGranted() {
+        mContactPermission = true;
+    }
+
+    @Override
+    public void contactPermissionDenied() {
+        mContactPermission = false;
+        mActivityCommunicator.checkContactPermission();
     }
 }
