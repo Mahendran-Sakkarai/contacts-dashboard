@@ -6,7 +6,7 @@ import com.mahendran_sakkarai.contacts_dashboard.data.MCallLog;
 
 import java.util.List;
 
-public class ContactsPresenter implements ContactsContract.Presenter{
+public class ContactsPresenter implements ContactsContract.Presenter {
     private final ContactsContract.View mViewInstance;
     private final DataSource mDataSource;
     private final ContactsContract.ActivityCommunicator mActivityCommunicator;
@@ -27,6 +27,12 @@ public class ContactsPresenter implements ContactsContract.Presenter{
 
     @Override
     public void start() {
+        if (mCallLogPermission && mContactPermission)
+            loadData();
+    }
+
+    @Override
+    public void loadData() {
         if (mDataSource != null && mViewInstance != null) {
             mViewInstance.showLoadingData();
             mDataSource.loadCallLogs(new DataContract.LoadCallLogs() {
@@ -46,6 +52,8 @@ public class ContactsPresenter implements ContactsContract.Presenter{
     @Override
     public void callLogPermissionGranted() {
         mCallLogPermission = true;
+        if (mContactPermission)
+            loadData();
     }
 
     @Override
@@ -57,6 +65,8 @@ public class ContactsPresenter implements ContactsContract.Presenter{
     @Override
     public void contactPermissionGranted() {
         mContactPermission = true;
+        if (mCallLogPermission)
+            loadData();
     }
 
     @Override

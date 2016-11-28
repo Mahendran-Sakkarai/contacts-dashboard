@@ -16,6 +16,8 @@ public interface ContactsContract {
     }
 
     interface Presenter extends BasePresenter {
+        void loadData();
+
         void callLogPermissionGranted();
 
         void callLogPermissionDenied();

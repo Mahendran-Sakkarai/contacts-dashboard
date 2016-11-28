@@ -2,14 +2,21 @@ package com.mahendran_sakkarai.contacts_dashboard.data;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.provider.CallLog;
+import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -32,7 +39,7 @@ public class DataSource implements DataContract {
 
     @Override
     public void loadCallLogs(LoadCallLogs callback) {
-        List<MCallLog> callLogs = new ArrayList<>();
+        HashMap<String, MCallLog> callLogs = new HashMap<>();
 
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALL_LOG)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -78,5 +85,60 @@ public class DataSource implements DataContract {
             else
                 callback.onDataNotLoaded();
         }
+    }
+
+    @Override
+    public ContactDetails getContactDetails(String contactNumber) {
+        ContactDetails contact = new ContactDetails();
+
+        contact.setId(getContactId(contactNumber));
+
+        String[] projection = new String[]{
+                ContactsContract.Contacts._ID,
+                ContactsContract.Contacts.DISPLAY_NAME
+        };
+
+        return contact;
+    }
+
+    private String getContactId(String contactNumber) {
+        String contactId = null;
+        String[] contactIdProjection = new String[]{
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID
+        };
+        Cursor contactIdCursor = mContext.getContentResolver().query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI, contactIdProjection,
+                ContactsContract.CommonDataKinds.Phone.NUMBER + "=?",
+                new String[]{contactNumber}, null);
+
+        while (contactIdCursor.moveToNext()) {
+            contactId = contactIdCursor.getString(contactIdCursor.
+                    getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+        }
+
+        contactIdCursor.close();
+
+        return contactId;
+    }
+
+    @Override
+    public Bitmap getContactImage(String contactId) {
+        Bitmap photo = null;
+
+        try {
+            InputStream inputStream = ContactsContract.Contacts.openContactPhotoInputStream(
+                    mContext.getContentResolver(),
+                    ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,
+                            Long.valueOf(contactId)));
+            if (inputStream != null) {
+                photo = BitmapFactory.decodeStream(inputStream);
+            }
+            assert inputStream != null;
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return photo;
     }
 }

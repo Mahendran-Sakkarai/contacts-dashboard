@@ -1,13 +1,25 @@
 package com.mahendran_sakkarai.contacts_dashboard.data;
 
-import java.util.List;
+import android.graphics.Bitmap;
+
+import java.util.HashMap;
 
 public interface DataContract {
     interface LoadCallLogs {
-        void onLoad(List<MCallLog> callLogList);
+        void onLoad(HashMap<String, MCallLog> callLogList);
+
+        void onDataNotLoaded();
+    }
+
+    interface LoadContact {
+        void onLoad(ContactDetails contact);
 
         void onDataNotLoaded();
     }
 
     void loadCallLogs(LoadCallLogs callback);
+
+    ContactDetails getContactDetails(String contactNumber);
+
+    Bitmap getContactImage(String contactId);
 }
