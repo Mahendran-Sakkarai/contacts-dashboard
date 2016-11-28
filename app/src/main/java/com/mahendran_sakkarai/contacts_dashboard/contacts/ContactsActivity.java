@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.mahendran_sakkarai.contacts_dashboard.R;
+import com.mahendran_sakkarai.contacts_dashboard.data.DataSource;
 import com.mahendran_sakkarai.contacts_dashboard.utils.ActivityUtils;
 
 public class ContactsActivity extends AppCompatActivity {
@@ -23,6 +24,6 @@ public class ContactsActivity extends AppCompatActivity {
             );
         }
 
-        mContactsPresenter = new ContactsPresenter(contactsFragment);
+        mContactsPresenter = new ContactsPresenter(contactsFragment, DataSource.newInstance(this));
     }
 }

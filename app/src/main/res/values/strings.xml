@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Contact Dashboard</string>
+    <string name="no_data_found">No Data Found!!</string>
+    <string name="loading_data">Loading Data!!</string>
 </resources>

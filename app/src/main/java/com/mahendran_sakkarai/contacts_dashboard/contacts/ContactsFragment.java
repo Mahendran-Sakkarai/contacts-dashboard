@@ -10,13 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.mahendran_sakkarai.contacts_dashboard.R;
+import com.mahendran_sakkarai.contacts_dashboard.data.MCallLog;
 
-/**
- * Created by Nandakumar on 11/27/2016.
- */
+import java.util.List;
+
 public class ContactsFragment extends Fragment implements ContactsContract.View{
     private ContactsContract.Presenter mPresenter;
     private RecyclerView mContactsRecyclerView;
+    private ContactsAdapter mContactsRecyclerViewAdapter;
 
     public static ContactsFragment newInstance(){
         return new ContactsFragment();
@@ -31,12 +32,36 @@ public class ContactsFragment extends Fragment implements ContactsContract.View{
 
         mContactsRecyclerView = (RecyclerView) root.findViewById(R.id.contacts_list);
         mContactsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mContactsRecyclerViewAdapter = new ContactsAdapter();
+        mContactsRecyclerView.setAdapter(mContactsRecyclerViewAdapter);
 
         return root;
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        mPresenter.start();
+    }
+
+    @Override
     public void setPresenter(ContactsContract.Presenter presenter) {
         this.mPresenter = presenter;
+    }
+
+    @Override
+    public void showLoadingData() {
+        mContactsRecyclerViewAdapter.showMessage(getContext().getString(R.string.loading_data));
+    }
+
+    @Override
+    public void showCallLogs(List<MCallLog> callLogList) {
+        mContactsRecyclerViewAdapter.showData(callLogList);
+    }
+
+    @Override
+    public void showNoDataAvailable() {
+        mContactsRecyclerViewAdapter.showMessage(getContext()
+                .getString(R.string.no_data_found));
     }
 }
