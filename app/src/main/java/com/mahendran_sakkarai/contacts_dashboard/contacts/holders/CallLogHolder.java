@@ -33,7 +33,7 @@ public class CallLogHolder extends RecyclerView.ViewHolder {
         if (callLog != null) {
             mContactName.setText(
                     (callLog.getName() != null && callLog.getName().length() > 0)
-                            ? callLog.getName() : "New Contact");
+                            ? callLog.getName() : "Unknown");
             mContactNumber.setText(callLog.getContactNumber());
             if (callLog.geteMail() != null && callLog.geteMail().length() > 0)
                 mContactEMail.setText(callLog.geteMail());
