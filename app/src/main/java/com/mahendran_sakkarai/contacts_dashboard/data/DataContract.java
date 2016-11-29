@@ -11,12 +11,6 @@ public interface DataContract {
         void onDataNotLoaded();
     }
 
-    interface LoadContact {
-        void onLoad(ContactDetails contact);
-
-        void onDataNotLoaded();
-    }
-
     void loadCallLogs(LoadCallLogs callback);
 
     Bitmap getContactImage(String contactId);
