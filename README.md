@@ -11,8 +11,8 @@ The call log will contain the below fields.
 * contactId - To get the stored primary key of the contact. To use to get the image at runtime.
 * contactNumber - Phone number
 * email - stored email else Not mentioned.
-* lastContactTime - Last contacted time in millisecond. In Ui <img src="https://github.com/Mahendran-Sakkarai/contacts-dashboard/raw/master/app/src/main/res/drawable-xxxhdpi/ic_date_range_black_24dp.png"/> is used to denote that.
-* totalTalkTime - Hold the total time talked. In Ui <img src="https://github.com/Mahendran-Sakkarai/contacts-dashboard/raw/master/app/src/main/res/drawable-xxxhdpi/ic_access_time_black_24dp.png"/> is used to denote that.
+* lastContactTime - Last contacted time in millisecond. In Ui <img src="https://github.com/Mahendran-Sakkarai/contacts-dashboard/raw/master/app/src/main/res/drawable-mdpi/ic_date_range_black_24dp.png"/> is used to denote that.
+* totalTalkTime - Hold the total time talked. In Ui <img src="https://github.com/Mahendran-Sakkarai/contacts-dashboard/raw/master/app/src/main/res/drawable-mdpi/ic_access_time_black_24dp.png"/> is used to denote that.
 
 # Screenshots
 <img src="https://github.com/Mahendran-Sakkarai/contacts-dashboard/raw/master/screenshots/screen_1.png"/>
