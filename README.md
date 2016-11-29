@@ -19,3 +19,6 @@ The call log will contain the below fields.
 
 # Icons
 [Material Icons](https://material.io/icons/) by Google.
+
+# Key
+Generated a testing key to build the release apk. Key store name, Key and Key password is `testing`.
