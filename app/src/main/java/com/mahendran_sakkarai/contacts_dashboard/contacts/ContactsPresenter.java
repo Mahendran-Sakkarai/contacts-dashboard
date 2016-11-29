@@ -4,6 +4,8 @@ import com.mahendran_sakkarai.contacts_dashboard.data.DataContract;
 import com.mahendran_sakkarai.contacts_dashboard.data.DataSource;
 import com.mahendran_sakkarai.contacts_dashboard.data.MCallLog;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ContactsPresenter implements ContactsContract.Presenter {
@@ -12,6 +14,7 @@ public class ContactsPresenter implements ContactsContract.Presenter {
     private final ContactsContract.ActivityCommunicator mActivityCommunicator;
     private boolean mContactPermission;
     private boolean mCallLogPermission;
+    private boolean isStarted = false;
 
     public ContactsPresenter(ContactsContract.View contactsView, DataSource dataSource,
                              ContactsContract.ActivityCommunicator communicator) {
@@ -27,18 +30,21 @@ public class ContactsPresenter implements ContactsContract.Presenter {
 
     @Override
     public void start() {
-        if (mCallLogPermission && mContactPermission)
+        if (mCallLogPermission && mContactPermission) {
             loadData();
+            isStarted = true;
+        }
     }
 
     @Override
     public void loadData() {
-        if (mDataSource != null && mViewInstance != null) {
+        if (mDataSource != null && mViewInstance != null && isStarted) {
             mViewInstance.showLoadingData();
             mDataSource.loadCallLogs(new DataContract.LoadCallLogs() {
                 @Override
-                public void onLoad(List<MCallLog> callLogList) {
-                    mViewInstance.showCallLogs(callLogList);
+                public void onLoad(HashMap<String, MCallLog> callLogList) {
+                    List<MCallLog> callLogs = new ArrayList<MCallLog>(callLogList.values());
+                    mViewInstance.showCallLogs(callLogs);
                 }
 
                 @Override

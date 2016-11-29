@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mahendran_sakkarai.contacts_dashboard.R;
+import com.mahendran_sakkarai.contacts_dashboard.data.DataSource;
 import com.mahendran_sakkarai.contacts_dashboard.data.MCallLog;
 import com.mahendran_sakkarai.contacts_dashboard.utils.ActivityUtils;
 
@@ -29,12 +30,24 @@ public class CallLogHolder extends RecyclerView.ViewHolder {
 
     public void bindData(MCallLog callLog) {
         if (callLog != null) {
-            mContactName.setText(callLog.getName());
+            mContactName.setText(
+                    (callLog.getName() != null && callLog.getName().length() > 0)
+                            ? callLog.getName() : "New Contact" );
             mContactNumber.setText(callLog.getContactNumber());
             if (callLog.geteMail() != null && callLog.geteMail().length() > 0)
                 mContactEMail.setText(callLog.geteMail());
             else
                 mContactEMail.setText("Not Mentioned");
+
+            if (callLog.getContactId() != null) {
+                mContactImage.setImageBitmap(DataSource.newInstance(mContactImage.getContext()).
+                        getContactImage(callLog.getContactId()));
+            } else {
+                mContactImage.setImageResource(R.drawable.ic_face_black_24dp);
+            }
+
+            mTotalTalkTime.setText(ActivityUtils.convertToTimeFormat(callLog.getTotalTalkTime()));
+            mLastSpokenTime.setText(ActivityUtils.convertToDateFormat(callLog.getLastContactTime()));
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.mahendran_sakkarai.contacts_dashboard.data;
 
 public class MCallLog {
+    private String contactId;
+
     private String name;
 
     private String contactNumber;
@@ -10,6 +12,14 @@ public class MCallLog {
     private long lastContactTime;
 
     private long totalTalkTime;
+
+    public String getContactId() {
+        return contactId;
+    }
+
+    public void setContactId(String contactId) {
+        this.contactId = contactId;
+    }
 
     public String getName() {
         return name;

@@ -21,6 +21,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * This provides methods to help Activities load their UI.
  */
@@ -29,13 +33,47 @@ public class ActivityUtils {
     /**
      * The {@code fragment} is added to the container view with id {@code frameId}. The operation is
      * performed by the {@code fragmentManager}.
-     *
      */
-    public static void addFragmentToActivity (@NonNull FragmentManager fragmentManager,
-                                              @NonNull Fragment fragment, int frameId) {
+    public static void addFragmentToActivity(@NonNull FragmentManager fragmentManager,
+                                             @NonNull Fragment fragment, int frameId) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.add(frameId, fragment);
         transaction.commit();
     }
 
+    public static String convertToTimeFormat(long totalTalkTime) {
+        String time = "";
+        if (totalTalkTime > 0) {
+            int seconds = (int) (totalTalkTime) % 60 ;
+            int minutes = (int) ((totalTalkTime / (60)) % 60);
+            int hours   = (int) ((totalTalkTime / (60*60)) % 24);
+
+            if (hours > 0)
+                time += hours + "h ";
+
+            if (minutes > 0)
+                time += minutes + "m ";
+
+            if (seconds > 0)
+                time += seconds + "s ";
+        } else {
+            time = "0s";
+        }
+
+        return time;
+    }
+
+    public static String convertToDateFormat(long dateValue) {
+        Date dateToFormat = new Date(dateValue);
+        DateFormat formatter = new SimpleDateFormat("dd-MMM hh:mm a");
+
+        String date = "";
+        if (dateValue > 0) {
+            date += formatter.format(dateToFormat);
+        } else {
+            date = "--";
+        }
+
+        return date;
+    }
 }

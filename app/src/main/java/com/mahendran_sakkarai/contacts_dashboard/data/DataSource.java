@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
@@ -45,39 +46,85 @@ public class DataSource implements DataContract {
                 != PackageManager.PERMISSION_GRANTED) {
             callback.onDataNotLoaded();
         } else {
-            Cursor managedCursor = mContext.getContentResolver().query(CallLog.Calls.CONTENT_URI,
+            Cursor callLogCursor = mContext.getContentResolver().query(CallLog.Calls.CONTENT_URI,
                     null, null, null, null);
 
-            if (managedCursor != null) {
-                int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
-                int type = managedCursor.getColumnIndex(CallLog.Calls.TYPE);
-                int date = managedCursor.getColumnIndex(CallLog.Calls.DATE);
-                int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
+            if (callLogCursor != null) {
+                int number = callLogCursor.getColumnIndex(CallLog.Calls.NUMBER);
+                int date = callLogCursor.getColumnIndex(CallLog.Calls.DATE);
+                int duration = callLogCursor.getColumnIndex(CallLog.Calls.DURATION);
 
-                while (managedCursor.moveToNext()) {
-                    String phoneNumber = managedCursor.getString(number);
-                    String callType = managedCursor.getString(type);
-                    String callDate = managedCursor.getString(date);
-                    Date callDayTime = new Date(Long.valueOf(callDate));
-                    String callDuration = managedCursor.getString(duration);
-                    String dir = null;
-                    int dircode = Integer.parseInt(callType);
-                    switch (dircode) {
-                        case CallLog.Calls.OUTGOING_TYPE:
-                            dir = "OUTGOING";
-                            break;
-
-                        case CallLog.Calls.INCOMING_TYPE:
-                            dir = "INCOMING";
-                            break;
-
-                        case CallLog.Calls.MISSED_TYPE:
-                            dir = "MISSED";
-                            break;
+                while (callLogCursor.moveToNext()) {
+                    String phoneNumber = callLogCursor.getString(number);
+                    long callDate = callLogCursor.getLong(date);
+                    long callDuration = callLogCursor.getLong(duration);
+                    MCallLog callLog = null;
+                    if (callLogs.containsKey(phoneNumber)) {
+                        callLog = callLogs.get(phoneNumber);
+                        callLog.setTotalTalkTime(callLog.getTotalTalkTime() + callDuration);
+                    } else {
+                        callLog = new MCallLog();
+                        callLog.setContactNumber(phoneNumber);
+                        callLog.setLastContactTime(callDate);
+                        callLog.setTotalTalkTime(callDuration);
                     }
+
+                    callLogs.put(phoneNumber, callLog);
                 }
 
-                managedCursor.close();
+                callLogCursor.close();
+
+                for (String key : callLogs.keySet()) {
+                    MCallLog callLog = callLogs.get(key);
+
+                    String[] projection = new String[] {
+                            ContactsContract.PhoneLookup.DISPLAY_NAME,
+                            ContactsContract.PhoneLookup._ID
+                    };
+
+                    // To get name and contact id
+                    Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+                            Uri.encode(key));
+
+                    Cursor contactCursor = mContext.getContentResolver().query(
+                            contactUri, projection, null, null, null
+                    );
+
+                    if (contactCursor != null) {
+                        int idKey = contactCursor.getColumnIndex(ContactsContract.PhoneLookup._ID);
+                        int nameKey = contactCursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME);
+                        while (contactCursor.moveToNext()) {
+                            callLog.setContactId(contactCursor.getString(idKey));
+                            callLog.setName(contactCursor.getString(nameKey));
+                        }
+
+                        contactCursor.close();
+                    }
+
+                    // To get Email
+                    if (callLog.getContactId() != null && callLog.getContactId().length() > 0) {
+                        Cursor emailCursor = mContext.getContentResolver().query(
+                                ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                                null,
+                                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
+                                new String[]{callLog.getContactId()}, null
+                        );
+
+                        if (emailCursor != null) {
+                            int emailKey = emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
+                            while (emailCursor.moveToNext()) {
+                                String email = emailCursor.getString(emailKey);
+                                if (email != null && email.length() != 0) {
+                                    callLog.seteMail(email);
+                                    break;
+                                }
+                            }
+                            emailCursor.close();
+                        }
+                    }
+
+                    callLogs.put(key, callLog);
+                }
             }
 
             if (callLogs.size() > 0)
@@ -85,40 +132,6 @@ public class DataSource implements DataContract {
             else
                 callback.onDataNotLoaded();
         }
-    }
-
-    @Override
-    public ContactDetails getContactDetails(String contactNumber) {
-        ContactDetails contact = new ContactDetails();
-
-        contact.setId(getContactId(contactNumber));
-
-        String[] projection = new String[]{
-                ContactsContract.Contacts._ID,
-                ContactsContract.Contacts.DISPLAY_NAME
-        };
-
-        return contact;
-    }
-
-    private String getContactId(String contactNumber) {
-        String contactId = null;
-        String[] contactIdProjection = new String[]{
-                ContactsContract.CommonDataKinds.Phone.CONTACT_ID
-        };
-        Cursor contactIdCursor = mContext.getContentResolver().query(
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI, contactIdProjection,
-                ContactsContract.CommonDataKinds.Phone.NUMBER + "=?",
-                new String[]{contactNumber}, null);
-
-        while (contactIdCursor.moveToNext()) {
-            contactId = contactIdCursor.getString(contactIdCursor.
-                    getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
-        }
-
-        contactIdCursor.close();
-
-        return contactId;
     }
 
     @Override
@@ -132,9 +145,8 @@ public class DataSource implements DataContract {
                             Long.valueOf(contactId)));
             if (inputStream != null) {
                 photo = BitmapFactory.decodeStream(inputStream);
+                inputStream.close();
             }
-            assert inputStream != null;
-            inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -19,7 +19,5 @@ public interface DataContract {
 
     void loadCallLogs(LoadCallLogs callback);
 
-    ContactDetails getContactDetails(String contactNumber);
-
     Bitmap getContactImage(String contactId);
 }
