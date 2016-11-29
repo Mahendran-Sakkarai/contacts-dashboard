@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ContactsAdapter extends RecyclerView.Adapter{
-    private static final int MESSAGE = 1;
-    private static final int CALL_LOG = 2;
+    public static final int MESSAGE = 1;
+    public static final int CALL_LOG = 2;
     private List<Object> mItems = new ArrayList<>();
 
     public ContactsAdapter() {
@@ -53,6 +53,14 @@ public class ContactsAdapter extends RecyclerView.Adapter{
         } else if (getItemViewType(position) == -1) {
             ((MessageHolder) holder).bindData("Issue on displaying details.");
         }
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
+        if (holder instanceof  CallLogHolder) {
+            ((CallLogHolder)holder).unsetBitmap();
+        }
+        super.onViewDetachedFromWindow(holder);
     }
 
     @Override

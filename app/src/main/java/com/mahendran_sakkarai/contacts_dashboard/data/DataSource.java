@@ -1,6 +1,7 @@
 package com.mahendran_sakkarai.contacts_dashboard.data;
 
 import android.Manifest;
+import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -16,10 +17,12 @@ import android.support.v4.app.ActivityCompat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 
@@ -44,108 +47,135 @@ public class DataSource implements DataContract {
     }
 
     @Override
-    public void loadCallLogs(LoadCallLogs callback) {
-        HashMap<String, MCallLog> callLogs = new HashMap<>();
+    public void loadCallLogs(final LoadCallLogs callback) {
+        AsyncQueryHandler contactQueryHandler =
+                new AsyncQueryHandler(mContext.getContentResolver()) {
+                    @Override
+                    protected void onQueryComplete(int token, Object cookie, Cursor contactsCursor) {
+                        List<MCallLog> callLogs = new ArrayList<>();
+                        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALL_LOG)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            callback.onDataNotLoaded();
+                        } else {
+                            if (contactsCursor != null) {
+                                // To get all contacts
+                                int idKey = contactsCursor.getColumnIndex(ContactsContract.Contacts._ID);
+                                int nameKey = contactsCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+                                int hasNoKey = contactsCursor.getColumnIndex(
+                                        ContactsContract.Contacts.HAS_PHONE_NUMBER);
 
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALL_LOG)
-                != PackageManager.PERMISSION_GRANTED) {
-            callback.onDataNotLoaded();
-        } else {
-            Cursor callLogCursor = mContext.getContentResolver().query(CallLog.Calls.CONTENT_URI,
-                    null, null, null, null);
+                                while (contactsCursor.moveToNext()) {
+                                    String contactId = contactsCursor.getString(idKey);
+                                    // To get phone number by contact id in ContactsContract.CommonDataKinds.Phone
+                                    if (contactsCursor.getInt(hasNoKey) > 0) {
+                                        Cursor phoneNumberCursor = mContext.getContentResolver().query(
+                                                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                                new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER},
+                                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                                                new String[]{contactId}, null);
+                                        while (phoneNumberCursor.moveToNext()) {
+                                            String phoneNo = phoneNumberCursor.getString(
+                                                    phoneNumberCursor.getColumnIndex(
+                                                            ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                            phoneNo = phoneNo.replaceAll("\\s+", "");
+                                            // If the contact contains phone number add to callLog
+                                            MCallLog callLog = new MCallLog();
+                                            callLog.setName(contactsCursor.getString(nameKey));
+                                            callLog.setContactId(contactId);
+                                            callLog.setContactNumber(phoneNo);
 
-            if (callLogCursor != null) {
-                int number = callLogCursor.getColumnIndex(CallLog.Calls.NUMBER);
-                int date = callLogCursor.getColumnIndex(CallLog.Calls.DATE);
-                int duration = callLogCursor.getColumnIndex(CallLog.Calls.DURATION);
-
-                while (callLogCursor.moveToNext()) {
-                    String phoneNumber = callLogCursor.getString(number);
-                    long callDate = callLogCursor.getLong(date);
-                    long callDuration = callLogCursor.getLong(duration);
-                    MCallLog callLog;
-                    if (callLogs.containsKey(phoneNumber)) {
-                        callLog = callLogs.get(phoneNumber);
-                        callLog.setTotalTalkTime(callLog.getTotalTalkTime() + callDuration);
-                    } else {
-                        callLog = new MCallLog();
-                        callLog.setContactNumber(phoneNumber);
-                        callLog.setTotalTalkTime(callDuration);
-                    }
-                    if (callLog.getLastContactTime() < callDate)
-                        callLog.setLastContactTime(callDate);
-
-                    callLogs.put(phoneNumber, callLog);
-                }
-
-                callLogCursor.close();
-
-                Iterator iterator = callLogs.entrySet().iterator();
-                while (iterator.hasNext()) {
-                    Map.Entry item = (Map.Entry)iterator.next();
-                    String key = (String) item.getKey();
-                    MCallLog callLog = (MCallLog) item.getValue();
-
-                    if (callLog.getTotalTalkTime() > 0) {
-
-                        String[] projection = new String[]{
-                                ContactsContract.PhoneLookup.DISPLAY_NAME,
-                                ContactsContract.PhoneLookup._ID
-                        };
-
-                        // To get name and contact id
-                        Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-                                Uri.encode(key));
-
-                        Cursor contactCursor = mContext.getContentResolver().query(
-                                contactUri, projection, null, null, null
-                        );
-
-                        if (contactCursor != null) {
-                            int idKey = contactCursor.getColumnIndex(ContactsContract.PhoneLookup._ID);
-                            int nameKey = contactCursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME);
-                            while (contactCursor.moveToNext()) {
-                                callLog.setContactId(contactCursor.getString(idKey));
-                                callLog.setName(contactCursor.getString(nameKey));
-                            }
-
-                            contactCursor.close();
-                        }
-
-                        // To get Email
-                        if (callLog.getContactId() != null && callLog.getContactId().length() > 0) {
-                            Cursor emailCursor = mContext.getContentResolver().query(
-                                    ContactsContract.CommonDataKinds.Email.CONTENT_URI,
-                                    null,
-                                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
-                                    new String[]{callLog.getContactId()}, null
-                            );
-
-                            if (emailCursor != null) {
-                                int emailKey = emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
-                                while (emailCursor.moveToNext()) {
-                                    String email = emailCursor.getString(emailKey);
-                                    if (email != null && email.length() != 0) {
-                                        callLog.seteMail(email);
-                                        break;
+                                            callLogs.add(callLog);
+                                        }
+                                        phoneNumberCursor.close();
                                     }
                                 }
-                                emailCursor.close();
+                                contactsCursor.close();
+
+                                // To get call logs by a number and update the callLogs list
+                                String[] callLogProjection = new String[]{
+                                        CallLog.Calls.NUMBER,
+                                        CallLog.Calls.DATE,
+                                        CallLog.Calls.DURATION
+                                };
+
+                                for (int i = 0; i < callLogs.size(); i++) {
+                                    MCallLog callLog = callLogs.get(i);
+                                    if (callLog != null) {
+                                        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+
+                                        }
+                                        Cursor callLogCursor = mContext.getContentResolver().query(
+                                                CallLog.Calls.CONTENT_URI,
+                                                callLogProjection,
+                                                CallLog.Calls.NUMBER + " = ?",
+                                                new String[]{callLog.getContactNumber()}, null);
+
+                                        int date = callLogCursor.getColumnIndex(CallLog.Calls.DATE);
+                                        int duration = callLogCursor.getColumnIndex(CallLog.Calls.DURATION);
+
+                                        while (callLogCursor.moveToNext()) {
+                                            long callDate = callLogCursor.getLong(date);
+                                            long callDuration = callLogCursor.getLong(duration);
+                                            callLog.setTotalTalkTime(callLog.getTotalTalkTime() + callDuration);
+                                            if (callLog.getLastContactTime() < callDate)
+                                                callLog.setLastContactTime(callDate);
+                                        }
+                                        callLogs.set(i, callLog);
+                                        callLogCursor.close();
+                                    }
+                                }
+
+                                // To check if talktime is greater than 0 else remove from list
+                                ListIterator<MCallLog> iterator = callLogs.listIterator();
+                                while (iterator.hasNext()) {
+                                    int iteratorIndex = iterator.nextIndex();
+                                    MCallLog callLog = iterator.next();
+                                    if (callLog.getTotalTalkTime() > 0) {
+                                        // To get Email
+                                        if (callLog.getContactId() != null && callLog.getContactId().length() > 0) {
+                                            Cursor emailCursor = mContext.getContentResolver().query(
+                                                    ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                                                    null,
+                                                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
+                                                    new String[]{callLog.getContactId()}, null
+                                            );
+
+                                            if (emailCursor != null) {
+                                                int emailKey = emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
+                                                while (emailCursor.moveToNext()) {
+                                                    String email = emailCursor.getString(emailKey);
+                                                    if (email != null && email.length() != 0) {
+                                                        callLog.seteMail(email);
+                                                        break;
+                                                    }
+                                                }
+                                                emailCursor.close();
+                                            }
+                                        }
+
+                                        callLogs.set(iteratorIndex, callLog);
+                                    } else {
+                                        iterator.remove();
+                                    }
+                                }
                             }
+
+                            if (callLogs.size() > 0) {
+                                Collections.sort(callLogs, new MCallLogComparator());
+                                callback.onLoad(callLogs);
+                            } else
+                                callback.onDataNotLoaded();
+
                         }
-
-                        callLogs.put(key, callLog);
-                    } else {
-                        iterator.remove();
                     }
-                }
-            }
-
-            if (callLogs.size() > 0)
-                callback.onLoad(callLogs);
-            else
-                callback.onDataNotLoaded();
-        }
+                };
+        String[] contactProjection = new String[]{
+                ContactsContract.Contacts._ID,
+                ContactsContract.Contacts.DISPLAY_NAME,
+                ContactsContract.Contacts.HAS_PHONE_NUMBER
+        };
+        contactQueryHandler.startQuery(1, null,
+                ContactsContract.Contacts.CONTENT_URI, contactProjection, null, null, null);
     }
 
     @Override

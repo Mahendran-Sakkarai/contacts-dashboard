@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import com.mahendran_sakkarai.contacts_dashboard.R;
 import com.mahendran_sakkarai.contacts_dashboard.data.MCallLog;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ContactsFragment extends Fragment implements ContactsContract.View{
@@ -32,10 +33,23 @@ public class ContactsFragment extends Fragment implements ContactsContract.View{
         View root = inflater.inflate(R.layout.contacts_fragment, container, false);
 
         mContactsRecyclerView = (RecyclerView) root.findViewById(R.id.contacts_list);
-        mContactsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         mContactsRecyclerViewAdapter = new ContactsAdapter();
+        final GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
+        layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                switch (mContactsRecyclerViewAdapter.getItemViewType(position)) {
+                    case ContactsAdapter.CALL_LOG:
+                        return 1;
+                    case ContactsAdapter.MESSAGE:
+                        return layoutManager.getSpanCount();
+                    default:
+                        return -1;
+                }
+            }
+        });
+        mContactsRecyclerView.setLayoutManager(layoutManager);
         mContactsRecyclerView.setAdapter(mContactsRecyclerViewAdapter);
-        showLoadingData();
 
         return root;
     }
@@ -50,6 +64,7 @@ public class ContactsFragment extends Fragment implements ContactsContract.View{
     public void onPause() {
         super.onPause();
         mPresenter.setStarted(false);
+        showLoadingData();
     }
 
     @Override

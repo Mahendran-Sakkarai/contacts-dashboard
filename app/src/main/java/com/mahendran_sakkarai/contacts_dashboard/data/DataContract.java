@@ -2,11 +2,11 @@ package com.mahendran_sakkarai.contacts_dashboard.data;
 
 import android.graphics.Bitmap;
 
-import java.util.HashMap;
+import java.util.List;
 
 public interface DataContract {
     interface LoadCallLogs {
-        void onLoad(HashMap<String, MCallLog> callLogList);
+        void onLoad(List<MCallLog> callLogList);
 
         void onDataNotLoaded();
     }

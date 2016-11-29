@@ -41,10 +41,8 @@ public class ContactsPresenter implements ContactsContract.Presenter {
             mViewInstance.showLoadingData();
             mDataSource.loadCallLogs(new DataContract.LoadCallLogs() {
                 @Override
-                public void onLoad(HashMap<String, MCallLog> callLogList) {
-                    List<MCallLog> callLogs = new ArrayList<>(callLogList.values());
-                    Collections.sort(callLogs, new MCallLogComparator());
-                    mViewInstance.showCallLogs(callLogs);
+                public void onLoad(List<MCallLog> callLogList) {
+                    mViewInstance.showCallLogs(callLogList);
                 }
 
                 @Override

@@ -16,14 +16,13 @@ public class ContactsActivity extends AppCompatActivity implements ContactsContr
     private static final int MY_PERMISSIONS_REQUEST_READ_CALL_LOG = 1;
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 2;
     private ContactsPresenter mContactsPresenter;
-    private ContactsFragment mContactsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mContactsFragment =
+        ContactsFragment mContactsFragment =
                 (ContactsFragment) getSupportFragmentManager().findFragmentById(R.id.container_layout);
         if (mContactsFragment == null) {
             mContactsFragment = ContactsFragment.newInstance();
@@ -68,8 +67,8 @@ public class ContactsActivity extends AppCompatActivity implements ContactsContr
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         DataSource.destroyInstance();
     }
 
