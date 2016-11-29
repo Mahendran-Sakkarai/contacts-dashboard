@@ -4,7 +4,7 @@
 Will List the contact with total talktime, Name, Mobile Number, Email and Last spoken time.
 
 # How it works
-A datasource will provide a list of call logs to the presenter. The presenter will update the content to the recyclerview.
+Implemented using [MVP Architecture](https://github.com/googlesamples/android-architecture.git). A datasource will provide a list of call logs to the presenter. The presenter will update the content to the recyclerview in the fragment.
 
 The call log will contain the below fields.
 * Name - Saved contact name else Unknown
@@ -16,3 +16,6 @@ The call log will contain the below fields.
 
 # Screenshots
 <img src="https://github.com/Mahendran-Sakkarai/contacts-dashboard/raw/master/screenshots/screen_1.png"/>
+
+# Icons
+[Material Icons](https://material.io/icons/) by Google.
