@@ -3,6 +3,7 @@ package com.mahendran_sakkarai.contacts_dashboard.contacts;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,22 +16,23 @@ public class ContactsActivity extends AppCompatActivity implements ContactsContr
     private static final int MY_PERMISSIONS_REQUEST_READ_CALL_LOG = 1;
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 2;
     private ContactsPresenter mContactsPresenter;
+    private ContactsFragment mContactsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ContactsFragment contactsFragment =
+        mContactsFragment =
                 (ContactsFragment) getSupportFragmentManager().findFragmentById(R.id.container_layout);
-        if (contactsFragment == null) {
-            contactsFragment = ContactsFragment.newInstance();
+        if (mContactsFragment == null) {
+            mContactsFragment = ContactsFragment.newInstance();
             ActivityUtils.addFragmentToActivity(
-                    getSupportFragmentManager(), contactsFragment, R.id.container_layout
+                    getSupportFragmentManager(), mContactsFragment, R.id.container_layout
             );
         }
 
-        mContactsPresenter = new ContactsPresenter(contactsFragment, DataSource.newInstance(this),
+        mContactsPresenter = new ContactsPresenter(mContactsFragment, DataSource.newInstance(this),
                 this);
 
         checkCallLogPermission();
@@ -46,7 +48,6 @@ public class ContactsActivity extends AppCompatActivity implements ContactsContr
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_CONTACTS},
                     MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-            return;
         } else {
             mContactsPresenter.contactPermissionGranted();
         }
@@ -61,15 +62,20 @@ public class ContactsActivity extends AppCompatActivity implements ContactsContr
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_CALL_LOG},
                     MY_PERMISSIONS_REQUEST_READ_CALL_LOG);
-            return;
         } else {
             mContactsPresenter.callLogPermissionGranted();
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    protected void onPause() {
+        super.onPause();
+        DataSource.destroyInstance();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,@NonNull
+                                           String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_CALL_LOG: {
                 // If request is cancelled, the result arrays are empty.

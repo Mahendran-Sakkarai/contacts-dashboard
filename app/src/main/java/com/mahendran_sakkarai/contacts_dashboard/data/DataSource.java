@@ -33,10 +33,13 @@ public class DataSource implements DataContract {
         return INSTANCE;
     }
 
+    public static void destroyInstance() {
+        INSTANCE = null;
+    }
+
     private DataSource(Context context) {
         this.mContext = context;
     }
-
 
     @Override
     public void loadCallLogs(LoadCallLogs callback) {
@@ -58,16 +61,17 @@ public class DataSource implements DataContract {
                     String phoneNumber = callLogCursor.getString(number);
                     long callDate = callLogCursor.getLong(date);
                     long callDuration = callLogCursor.getLong(duration);
-                    MCallLog callLog = null;
+                    MCallLog callLog;
                     if (callLogs.containsKey(phoneNumber)) {
                         callLog = callLogs.get(phoneNumber);
                         callLog.setTotalTalkTime(callLog.getTotalTalkTime() + callDuration);
                     } else {
                         callLog = new MCallLog();
                         callLog.setContactNumber(phoneNumber);
-                        callLog.setLastContactTime(callDate);
                         callLog.setTotalTalkTime(callDuration);
                     }
+                    if (callLog.getLastContactTime() < callDate)
+                        callLog.setLastContactTime(callDate);
 
                     callLogs.put(phoneNumber, callLog);
                 }
