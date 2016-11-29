@@ -18,7 +18,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 public class DataSource implements DataContract {
@@ -78,56 +80,64 @@ public class DataSource implements DataContract {
 
                 callLogCursor.close();
 
-                for (String key : callLogs.keySet()) {
-                    MCallLog callLog = callLogs.get(key);
+                Iterator iterator = callLogs.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry item = (Map.Entry)iterator.next();
+                    String key = (String) item.getKey();
+                    MCallLog callLog = (MCallLog) item.getValue();
 
-                    String[] projection = new String[] {
-                            ContactsContract.PhoneLookup.DISPLAY_NAME,
-                            ContactsContract.PhoneLookup._ID
-                    };
+                    if (callLog.getTotalTalkTime() > 0) {
 
-                    // To get name and contact id
-                    Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-                            Uri.encode(key));
+                        String[] projection = new String[]{
+                                ContactsContract.PhoneLookup.DISPLAY_NAME,
+                                ContactsContract.PhoneLookup._ID
+                        };
 
-                    Cursor contactCursor = mContext.getContentResolver().query(
-                            contactUri, projection, null, null, null
-                    );
+                        // To get name and contact id
+                        Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+                                Uri.encode(key));
 
-                    if (contactCursor != null) {
-                        int idKey = contactCursor.getColumnIndex(ContactsContract.PhoneLookup._ID);
-                        int nameKey = contactCursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME);
-                        while (contactCursor.moveToNext()) {
-                            callLog.setContactId(contactCursor.getString(idKey));
-                            callLog.setName(contactCursor.getString(nameKey));
-                        }
-
-                        contactCursor.close();
-                    }
-
-                    // To get Email
-                    if (callLog.getContactId() != null && callLog.getContactId().length() > 0) {
-                        Cursor emailCursor = mContext.getContentResolver().query(
-                                ContactsContract.CommonDataKinds.Email.CONTENT_URI,
-                                null,
-                                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
-                                new String[]{callLog.getContactId()}, null
+                        Cursor contactCursor = mContext.getContentResolver().query(
+                                contactUri, projection, null, null, null
                         );
 
-                        if (emailCursor != null) {
-                            int emailKey = emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
-                            while (emailCursor.moveToNext()) {
-                                String email = emailCursor.getString(emailKey);
-                                if (email != null && email.length() != 0) {
-                                    callLog.seteMail(email);
-                                    break;
-                                }
+                        if (contactCursor != null) {
+                            int idKey = contactCursor.getColumnIndex(ContactsContract.PhoneLookup._ID);
+                            int nameKey = contactCursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME);
+                            while (contactCursor.moveToNext()) {
+                                callLog.setContactId(contactCursor.getString(idKey));
+                                callLog.setName(contactCursor.getString(nameKey));
                             }
-                            emailCursor.close();
-                        }
-                    }
 
-                    callLogs.put(key, callLog);
+                            contactCursor.close();
+                        }
+
+                        // To get Email
+                        if (callLog.getContactId() != null && callLog.getContactId().length() > 0) {
+                            Cursor emailCursor = mContext.getContentResolver().query(
+                                    ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                                    null,
+                                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
+                                    new String[]{callLog.getContactId()}, null
+                            );
+
+                            if (emailCursor != null) {
+                                int emailKey = emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
+                                while (emailCursor.moveToNext()) {
+                                    String email = emailCursor.getString(emailKey);
+                                    if (email != null && email.length() != 0) {
+                                        callLog.seteMail(email);
+                                        break;
+                                    }
+                                }
+                                emailCursor.close();
+                            }
+                        }
+
+                        callLogs.put(key, callLog);
+                    } else {
+                        iterator.remove();
+                    }
                 }
             }
 
