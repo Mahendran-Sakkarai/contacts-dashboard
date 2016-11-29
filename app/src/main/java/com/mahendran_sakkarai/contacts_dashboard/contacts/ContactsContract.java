@@ -25,6 +25,8 @@ public interface ContactsContract {
         void contactPermissionGranted();
 
         void contactPermissionDenied();
+
+        void setStarted(boolean started);
     }
 
     interface ActivityCommunicator{

@@ -34,6 +34,7 @@ public class ContactsFragment extends Fragment implements ContactsContract.View{
         mContactsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mContactsRecyclerViewAdapter = new ContactsAdapter();
         mContactsRecyclerView.setAdapter(mContactsRecyclerViewAdapter);
+        showLoadingData();
 
         return root;
     }
@@ -42,6 +43,12 @@ public class ContactsFragment extends Fragment implements ContactsContract.View{
     public void onResume() {
         super.onResume();
         mPresenter.start();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mPresenter.setStarted(false);
     }
 
     @Override

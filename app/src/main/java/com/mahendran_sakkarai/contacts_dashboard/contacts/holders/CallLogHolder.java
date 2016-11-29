@@ -1,5 +1,6 @@
 package com.mahendran_sakkarai.contacts_dashboard.contacts.holders;
 
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -32,7 +33,7 @@ public class CallLogHolder extends RecyclerView.ViewHolder {
         if (callLog != null) {
             mContactName.setText(
                     (callLog.getName() != null && callLog.getName().length() > 0)
-                            ? callLog.getName() : "New Contact" );
+                            ? callLog.getName() : "New Contact");
             mContactNumber.setText(callLog.getContactNumber());
             if (callLog.geteMail() != null && callLog.geteMail().length() > 0)
                 mContactEMail.setText(callLog.geteMail());
@@ -40,8 +41,13 @@ public class CallLogHolder extends RecyclerView.ViewHolder {
                 mContactEMail.setText("Not Mentioned");
 
             if (callLog.getContactId() != null) {
-                mContactImage.setImageBitmap(DataSource.newInstance(mContactImage.getContext()).
-                        getContactImage(callLog.getContactId()));
+                Bitmap profilePic = DataSource.newInstance(mContactImage.getContext()).
+                        getContactImage(callLog.getContactId());
+                if (profilePic != null)
+                    mContactImage.setImageBitmap(profilePic);
+                else {
+                    mContactImage.setImageResource(R.drawable.ic_face_black_24dp);
+                }
             } else {
                 mContactImage.setImageResource(R.drawable.ic_face_black_24dp);
             }
