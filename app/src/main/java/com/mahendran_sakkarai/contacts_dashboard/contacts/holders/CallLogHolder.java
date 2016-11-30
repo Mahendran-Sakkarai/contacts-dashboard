@@ -9,7 +9,7 @@ import android.widget.TextView;
 import com.mahendran_sakkarai.contacts_dashboard.R;
 import com.mahendran_sakkarai.contacts_dashboard.data.DataSource;
 import com.mahendran_sakkarai.contacts_dashboard.data.MCallLog;
-import com.mahendran_sakkarai.contacts_dashboard.utils.ActivityUtils;
+import com.mahendran_sakkarai.contacts_dashboard.utils.ApplicationUtils;
 
 public class CallLogHolder extends RecyclerView.ViewHolder {
     private final ImageView mContactImage;
@@ -53,8 +53,8 @@ public class CallLogHolder extends RecyclerView.ViewHolder {
                 mContactImage.setImageResource(R.drawable.ic_face_black_24dp);
             }
 
-            mTotalTalkTime.setText(ActivityUtils.convertToTimeFormat(callLog.getTotalTalkTime()));
-            mLastSpokenTime.setText(ActivityUtils.convertToDateFormat(callLog.getLastContactTime()));
+            mTotalTalkTime.setText(ApplicationUtils.convertToTimeFormat(callLog.getTotalTalkTime()));
+            mLastSpokenTime.setText(ApplicationUtils.convertToDateFormat(callLog.getLastContactTime()));
         }
     }
 

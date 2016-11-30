@@ -9,6 +9,14 @@ public interface DataContract {
         void onLoad(List<MCallLog> callLogList);
 
         void onDataNotLoaded();
+
+        void triggerLoadContacts();
+
+        void triggerLoadContactsWithPhoneNumber(String contactId);
+
+        void triggerLoadCallLogsByMobileNumber(String contactId, String contactNumber);
+
+        void triggerGetEmailFromContactId(String contactId);
     }
 
     void loadCallLogs(LoadCallLogs callback);

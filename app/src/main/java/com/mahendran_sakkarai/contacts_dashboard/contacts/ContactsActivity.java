@@ -2,17 +2,23 @@ package com.mahendran_sakkarai.contacts_dashboard.contacts;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Build;
+import android.provider.CallLog;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.mahendran_sakkarai.contacts_dashboard.R;
 import com.mahendran_sakkarai.contacts_dashboard.data.DataSource;
-import com.mahendran_sakkarai.contacts_dashboard.utils.ActivityUtils;
+import com.mahendran_sakkarai.contacts_dashboard.utils.ApplicationUtils;
 
-public class ContactsActivity extends AppCompatActivity implements ContactsContract.ActivityCommunicator{
+public class ContactsActivity extends AppCompatActivity implements
+        ContactsContract.ActivityCommunicator {
     private static final int MY_PERMISSIONS_REQUEST_READ_CALL_LOG = 1;
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 2;
     private ContactsPresenter mContactsPresenter;
@@ -26,7 +32,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsContr
                 (ContactsFragment) getSupportFragmentManager().findFragmentById(R.id.container_layout);
         if (mContactsFragment == null) {
             mContactsFragment = ContactsFragment.newInstance();
-            ActivityUtils.addFragmentToActivity(
+            ApplicationUtils.addFragmentToActivity(
                     getSupportFragmentManager(), mContactsFragment, R.id.container_layout
             );
         }
@@ -73,8 +79,8 @@ public class ContactsActivity extends AppCompatActivity implements ContactsContr
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,@NonNull
-                                           String permissions[], @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull
+            String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_CALL_LOG: {
                 // If request is cancelled, the result arrays are empty.

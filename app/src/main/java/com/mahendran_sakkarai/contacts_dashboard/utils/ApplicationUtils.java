@@ -28,7 +28,13 @@ import java.util.Date;
 /**
  * This provides methods to help Activities load their UI.
  */
-public class ActivityUtils {
+public class ApplicationUtils {
+    public static final int LOAD_CONTACTS_LOADER = 1;
+    public static final String CONTACT_ID = "CONTACT_ID";
+    public static final int LOAD_CONTACTS_WITH_PHONE_NUMBER_LOADER = 2;
+    public static final String CONTACT_NUMBER = "CONTACT_NUMBER";
+    public static final int LOAD_CALL_LOG_BY_NUMBER_LOADER = 3;
+    public static final int LOAD_EMAIL_BY_CONTACT_ID = 4;
 
     /**
      * The {@code fragment} is added to the container view with id {@code frameId}. The operation is

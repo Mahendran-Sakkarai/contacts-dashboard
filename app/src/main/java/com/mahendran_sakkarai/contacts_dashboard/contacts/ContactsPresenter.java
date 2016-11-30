@@ -49,6 +49,26 @@ public class ContactsPresenter implements ContactsContract.Presenter {
                 public void onDataNotLoaded() {
                     mViewInstance.showNoDataAvailable();
                 }
+
+                @Override
+                public void triggerLoadContacts() {
+                    mViewInstance.triggerLoadContacts();
+                }
+
+                @Override
+                public void triggerLoadContactsWithPhoneNumber(String contactId) {
+                    mViewInstance.triggerLoadContactsWithPhoneNumber(contactId);
+                }
+
+                @Override
+                public void triggerLoadCallLogsByMobileNumber(String contactNumber) {
+                    mViewInstance.triggerLoadCallLogsByMobileNumber(contactNumber);
+                }
+
+                @Override
+                public void triggerGetEmailFromContactId(String contactId) {
+                    mViewInstance.triggerGetEmailFromContactId(contactId);
+                }
             });
         }
     }
