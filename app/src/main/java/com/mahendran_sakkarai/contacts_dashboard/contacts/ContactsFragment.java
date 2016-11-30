@@ -70,7 +70,6 @@ public class ContactsFragment extends Fragment implements ContactsContract.View{
     public void onPause() {
         super.onPause();
         mPresenter.setStarted(false);
-        showLoadingData();
     }
 
     @Override
@@ -129,22 +128,25 @@ public class ContactsFragment extends Fragment implements ContactsContract.View{
     }
 
     @Override
-    public void triggerLoadContactsWithPhoneNumber(final String contactId) {
+    public void triggerLoadContactsWithPhoneNumber(final ArrayList<String> contactIds) {
         Bundle args = new Bundle();
-        args.putString(ApplicationUtils.CONTACT_ID, contactId);
+        args.putStringArrayList(ApplicationUtils.CONTACT_ID, contactIds);
         getLoaderManager().initLoader(ApplicationUtils.LOAD_CONTACTS_WITH_PHONE_NUMBER_LOADER, args,
                 new LoaderManager.LoaderCallbacks<Cursor>() {
                     @Override
                     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
                         if (args != null) {
-                            String contactId = args.getString(ApplicationUtils.CONTACT_ID);
-                            if (contactId != null) {
+                            ArrayList<String> contactIds = args.getStringArrayList(ApplicationUtils.CONTACT_ID);
+                            if (contactIds != null) {
                                 return new CursorLoader(
                                         getActivity(),
                                         android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                                        new String[]{android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER},
-                                        android.provider.ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-                                        new String[]{contactId}, null
+                                        new String[]{
+                                                android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER,
+                                                android.provider.ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+                                        },
+                                        android.provider.ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " IN (" + ApplicationUtils.makePlaceholders(contactIds.size()) +")",
+                                        contactIds.toArray(new String[contactIds.size()]), null
                                 );
                             }
                         }
@@ -153,7 +155,7 @@ public class ContactsFragment extends Fragment implements ContactsContract.View{
 
                     @Override
                     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                        mPresenter.loadPhoneNumber(contactId, data);
+                        mPresenter.loadPhoneNumber(data);
                     }
 
                     @Override
@@ -164,9 +166,9 @@ public class ContactsFragment extends Fragment implements ContactsContract.View{
     }
 
     @Override
-    public void triggerLoadCallLogsByMobileNumber(final String contactId, final String contactNumber) {
+    public void triggerLoadCallLogsByMobileNumber(ArrayList<String> contactNumbers) {
         Bundle args = new Bundle();
-        args.putString(ApplicationUtils.CONTACT_NUMBER, contactNumber);
+        args.putStringArrayList(ApplicationUtils.CONTACT_NUMBER, contactNumbers);
         getLoaderManager().initLoader(ApplicationUtils.LOAD_CALL_LOG_BY_NUMBER_LOADER, args,
                 new LoaderManager.LoaderCallbacks<Cursor>() {
                     @Override
@@ -177,14 +179,14 @@ public class ContactsFragment extends Fragment implements ContactsContract.View{
                                     CallLog.Calls.DATE,
                                     CallLog.Calls.DURATION
                             };
-                            String contactNumber = args.getString(ApplicationUtils.CONTACT_NUMBER);
-                            if (contactNumber != null) {
+                            ArrayList<String> contactNumbers = args.getStringArrayList(ApplicationUtils.CONTACT_NUMBER);
+                            if (contactNumbers != null) {
                                 return new CursorLoader(
                                         getActivity(),
                                         CallLog.Calls.CONTENT_URI,
                                         callLogProjection,
-                                        CallLog.Calls.NUMBER + " = ?",
-                                        new String[]{contactNumber}, null
+                                        CallLog.Calls.NUMBER + " IN (" + ApplicationUtils.makePlaceholders(contactNumbers.size()) + ")",
+                                        contactNumbers.toArray(new String[contactNumbers.size()]), null
                                 );
                             }
                         }
@@ -193,7 +195,7 @@ public class ContactsFragment extends Fragment implements ContactsContract.View{
 
                     @Override
                     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                        mPresenter.loadCallLogs(contactId, data);
+                        mPresenter.loadCallLogs(data);
                     }
 
                     @Override
@@ -204,25 +206,26 @@ public class ContactsFragment extends Fragment implements ContactsContract.View{
     }
 
     @Override
-    public void triggerGetEmailFromContactId(final String contactId) {
+    public void triggerGetEmailFromContactId(ArrayList<String> contactIds) {
         Bundle args = new Bundle();
-        args.putString(ApplicationUtils.CONTACT_ID, contactId);
+        args.putStringArrayList(ApplicationUtils.CONTACT_ID, contactIds);
         getLoaderManager().initLoader(ApplicationUtils.LOAD_EMAIL_BY_CONTACT_ID, args,
                 new LoaderManager.LoaderCallbacks<Cursor>() {
                     @Override
                     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
                         if (args != null) {
                             String[] emailProjection = new String[]{
+                                    android.provider.ContactsContract.CommonDataKinds.Email.CONTACT_ID,
                                     android.provider.ContactsContract.CommonDataKinds.Email.DATA
                             };
-                            String contactNumber = args.getString(ApplicationUtils.CONTACT_NUMBER);
-                            if (contactNumber != null) {
+                            ArrayList<String> contactIds = args.getStringArrayList(ApplicationUtils.CONTACT_ID);
+                            if (contactIds != null) {
                                 return new CursorLoader(
                                         getActivity(),
                                         android.provider.ContactsContract.CommonDataKinds.Email.CONTENT_URI,
                                         emailProjection,
-                                        android.provider.ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
-                                        new String[]{contactNumber}, null
+                                        android.provider.ContactsContract.CommonDataKinds.Email.CONTACT_ID + " IN ("+ApplicationUtils.makePlaceholders(contactIds.size())+")",
+                                        contactIds.toArray(new String[contactIds.size()]), null
                                 );
                             }
                         }
@@ -231,7 +234,7 @@ public class ContactsFragment extends Fragment implements ContactsContract.View{
 
                     @Override
                     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                        mPresenter.loadEmailByContactId(contactId, data);
+                        mPresenter.loadEmailByContactId(data);
                     }
 
                     @Override

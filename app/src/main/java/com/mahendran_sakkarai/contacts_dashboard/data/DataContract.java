@@ -1,10 +1,18 @@
 package com.mahendran_sakkarai.contacts_dashboard.data;
 
+import android.database.Cursor;
 import android.graphics.Bitmap;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface DataContract {
+    void loadContacts(Cursor contactsCursor);
+
+    void loadContactsWithPhoneNumber(Cursor phoneNumberCursor);
+
+    void loadEmailToContact(Cursor emailData);
+
     interface LoadCallLogs {
         void onLoad(List<MCallLog> callLogList);
 
@@ -12,14 +20,16 @@ public interface DataContract {
 
         void triggerLoadContacts();
 
-        void triggerLoadContactsWithPhoneNumber(String contactId);
+        void triggerLoadContactsWithPhoneNumber(ArrayList<String> contactId);
 
-        void triggerLoadCallLogsByMobileNumber(String contactId, String contactNumber);
+        void triggerLoadCallLogsByMobileNumber(ArrayList<String> contactNumbers);
 
-        void triggerGetEmailFromContactId(String contactId);
+        void triggerGetEmailFromContactId(ArrayList<String> contactId);
     }
 
     void loadCallLogs(LoadCallLogs callback);
+
+    void loadCallLogs(Cursor callLogs);
 
     Bitmap getContactImage(String contactId);
 }

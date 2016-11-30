@@ -6,6 +6,7 @@ import com.mahendran_sakkarai.contacts_dashboard.BasePresenter;
 import com.mahendran_sakkarai.contacts_dashboard.BaseView;
 import com.mahendran_sakkarai.contacts_dashboard.data.MCallLog;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface ContactsContract {
@@ -18,11 +19,11 @@ public interface ContactsContract {
 
         void triggerLoadContacts();
 
-        void triggerLoadContactsWithPhoneNumber(String contactId);
+        void triggerLoadContactsWithPhoneNumber(ArrayList<String> contactIds);
 
-        void triggerLoadCallLogsByMobileNumber(String contactId, String contactNumber);
+        void triggerLoadCallLogsByMobileNumber(ArrayList<String> contactNumbers);
 
-        void triggerGetEmailFromContactId(String contactId);
+        void triggerGetEmailFromContactId(ArrayList<String> contactIds);
     }
 
     interface Presenter extends BasePresenter {
@@ -40,11 +41,11 @@ public interface ContactsContract {
 
         void loadContacts(Cursor contacts);
 
-        void loadPhoneNumber(String contactId, Cursor phoneNumberCursor);
+        void loadPhoneNumber(Cursor phoneNumberCursor);
 
-        void loadCallLogs(String contactId, Cursor callLogsByNumber);
+        void loadEmailByContactId(Cursor emailData);
 
-        void loadEmailByContactId(String contactId, Cursor emailData);
+        void loadCallLogs(Cursor callLogs);
     }
 
     interface ActivityCommunicator{

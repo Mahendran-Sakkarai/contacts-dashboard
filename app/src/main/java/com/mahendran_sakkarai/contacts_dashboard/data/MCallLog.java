@@ -1,5 +1,7 @@
 package com.mahendran_sakkarai.contacts_dashboard.data;
 
+import android.graphics.Bitmap;
+
 public class MCallLog {
     private String contactId;
 
@@ -12,6 +14,8 @@ public class MCallLog {
     private long lastContactTime;
 
     private long totalTalkTime;
+
+    private Bitmap bitmap;
 
     public String getContactId() {
         return contactId;
@@ -59,5 +63,13 @@ public class MCallLog {
 
     public void setTotalTalkTime(long totalTalkTime) {
         this.totalTalkTime = totalTalkTime;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
+    }
+
+    public Bitmap getBitmap() {
+        return bitmap;
     }
 }

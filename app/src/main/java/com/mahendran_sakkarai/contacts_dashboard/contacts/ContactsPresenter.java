@@ -1,5 +1,7 @@
 package com.mahendran_sakkarai.contacts_dashboard.contacts;
 
+import android.database.Cursor;
+
 import com.mahendran_sakkarai.contacts_dashboard.data.DataContract;
 import com.mahendran_sakkarai.contacts_dashboard.data.DataSource;
 import com.mahendran_sakkarai.contacts_dashboard.data.MCallLog;
@@ -42,6 +44,7 @@ public class ContactsPresenter implements ContactsContract.Presenter {
             mDataSource.loadCallLogs(new DataContract.LoadCallLogs() {
                 @Override
                 public void onLoad(List<MCallLog> callLogList) {
+                    Collections.sort(callLogList, new MCallLogComparator());
                     mViewInstance.showCallLogs(callLogList);
                 }
 
@@ -56,18 +59,18 @@ public class ContactsPresenter implements ContactsContract.Presenter {
                 }
 
                 @Override
-                public void triggerLoadContactsWithPhoneNumber(String contactId) {
+                public void triggerLoadContactsWithPhoneNumber(ArrayList<String> contactId) {
                     mViewInstance.triggerLoadContactsWithPhoneNumber(contactId);
                 }
 
                 @Override
-                public void triggerLoadCallLogsByMobileNumber(String contactNumber) {
-                    mViewInstance.triggerLoadCallLogsByMobileNumber(contactNumber);
+                public void triggerLoadCallLogsByMobileNumber(ArrayList<String> contactNumbers) {
+                    mViewInstance.triggerLoadCallLogsByMobileNumber(contactNumbers);
                 }
 
                 @Override
-                public void triggerGetEmailFromContactId(String contactId) {
-                    mViewInstance.triggerGetEmailFromContactId(contactId);
+                public void triggerGetEmailFromContactId(ArrayList<String> contactIds) {
+                    mViewInstance.triggerGetEmailFromContactId(contactIds);
                 }
             });
         }
@@ -102,5 +105,25 @@ public class ContactsPresenter implements ContactsContract.Presenter {
     @Override
     public void setStarted(boolean isStarted) {
         this.isStarted = isStarted;
+    }
+
+    @Override
+    public void loadContacts(Cursor contacts) {
+        mDataSource.loadContacts(contacts);
+    }
+
+    @Override
+    public void loadPhoneNumber(Cursor phoneNumberCursor) {
+        mDataSource.loadContactsWithPhoneNumber(phoneNumberCursor);
+    }
+
+    @Override
+    public void loadEmailByContactId(Cursor emailData) {
+        mDataSource.loadEmailToContact(emailData);
+    }
+
+    @Override
+    public void loadCallLogs(Cursor callLogs) {
+        mDataSource.loadCallLogs(callLogs);
     }
 }

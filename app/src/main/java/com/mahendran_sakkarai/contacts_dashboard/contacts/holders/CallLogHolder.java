@@ -18,7 +18,6 @@ public class CallLogHolder extends RecyclerView.ViewHolder {
     private final TextView mContactEMail;
     private final TextView mTotalTalkTime;
     private final TextView mLastSpokenTime;
-    private Bitmap mProfilePic;
 
     public CallLogHolder(View view) {
         super(view);
@@ -41,24 +40,14 @@ public class CallLogHolder extends RecyclerView.ViewHolder {
             else
                 mContactEMail.setText("Not Mentioned");
 
-            if (callLog.getContactId() != null) {
-                mProfilePic = DataSource.newInstance(mContactImage.getContext()).
-                        getContactImage(callLog.getContactId());
-                if (mProfilePic != null)
-                    mContactImage.setImageBitmap(mProfilePic);
-                else {
-                    mContactImage.setImageResource(R.drawable.ic_face_black_24dp);
-                }
-            } else {
+            if (callLog.getBitmap() != null)
+                mContactImage.setImageBitmap(callLog.getBitmap());
+            else {
                 mContactImage.setImageResource(R.drawable.ic_face_black_24dp);
             }
 
             mTotalTalkTime.setText(ApplicationUtils.convertToTimeFormat(callLog.getTotalTalkTime()));
             mLastSpokenTime.setText(ApplicationUtils.convertToDateFormat(callLog.getLastContactTime()));
         }
-    }
-
-    public void unsetBitmap() {
-        mProfilePic = null;
     }
 }

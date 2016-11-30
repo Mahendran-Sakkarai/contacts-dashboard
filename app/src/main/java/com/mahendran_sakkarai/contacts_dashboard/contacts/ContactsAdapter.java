@@ -56,14 +56,6 @@ public class ContactsAdapter extends RecyclerView.Adapter{
     }
 
     @Override
-    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
-        if (holder instanceof  CallLogHolder) {
-            ((CallLogHolder)holder).unsetBitmap();
-        }
-        super.onViewDetachedFromWindow(holder);
-    }
-
-    @Override
     public int getItemCount() {
         return mItems.size();
     }
