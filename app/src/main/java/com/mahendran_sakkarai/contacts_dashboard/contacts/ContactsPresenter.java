@@ -19,6 +19,8 @@ public class ContactsPresenter implements ContactsContract.Presenter {
     private boolean mContactPermission;
     private boolean mCallLogPermission;
     private boolean isStarted = false;
+    private List<MCallLog> mCallLogList = new ArrayList<>();
+    private boolean isLoaded = false;
 
     public ContactsPresenter(ContactsContract.View contactsView, DataSource dataSource,
                              ContactsContract.ActivityCommunicator communicator) {
@@ -39,12 +41,14 @@ public class ContactsPresenter implements ContactsContract.Presenter {
 
     @Override
     public void loadData() {
-        if (mDataSource != null && mViewInstance != null && isStarted) {
+        if (mDataSource != null && mViewInstance != null && isStarted && !isLoaded) {
             mViewInstance.showLoadingData();
             mDataSource.loadCallLogs(new DataContract.LoadCallLogs() {
                 @Override
                 public void onLoad(List<MCallLog> callLogList) {
                     Collections.sort(callLogList, new MCallLogComparator());
+                    mCallLogList = callLogList;
+                    isLoaded = true;
                     mViewInstance.showCallLogs(callLogList);
                 }
 

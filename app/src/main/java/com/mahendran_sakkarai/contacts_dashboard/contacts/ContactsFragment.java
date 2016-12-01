@@ -1,9 +1,12 @@
 package com.mahendran_sakkarai.contacts_dashboard.contacts;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.CallLog;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -20,18 +23,20 @@ import com.mahendran_sakkarai.contacts_dashboard.data.MCallLog;
 import com.mahendran_sakkarai.contacts_dashboard.utils.ApplicationUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-public class ContactsFragment extends Fragment implements ContactsContract.View{
+public class ContactsFragment extends Fragment implements ContactsContract.View {
     private ContactsContract.Presenter mPresenter;
     private RecyclerView mContactsRecyclerView;
     private ContactsAdapter mContactsRecyclerViewAdapter;
 
-    public static ContactsFragment newInstance(){
+    public static ContactsFragment newInstance() {
         return new ContactsFragment();
     }
 
-    public ContactsFragment(){}
+    public ContactsFragment() {
+    }
 
     @Nullable
     @Override
