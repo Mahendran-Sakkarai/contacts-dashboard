@@ -13,9 +13,11 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.crashlytics.android.Crashlytics;
 import com.mahendran_sakkarai.contacts_dashboard.R;
 import com.mahendran_sakkarai.contacts_dashboard.data.DataSource;
 import com.mahendran_sakkarai.contacts_dashboard.utils.ApplicationUtils;
+import io.fabric.sdk.android.Fabric;
 
 public class ContactsActivity extends AppCompatActivity implements
         ContactsContract.ActivityCommunicator {
@@ -26,6 +28,7 @@ public class ContactsActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
         ContactsFragment mContactsFragment =
