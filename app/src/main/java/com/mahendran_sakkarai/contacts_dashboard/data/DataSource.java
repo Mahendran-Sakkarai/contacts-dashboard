@@ -138,8 +138,6 @@ public class DataSource implements DataContract {
                 String number = callLogCursor.getString(numberKey);
                 number = number.replaceAll("\\s+", "");
                 String contactId = mContactNumbers.get(number);
-                if (number.contains("526"))
-                    contactId = mContactNumbers.get(number);
                 MCallLog callLog = mCallLogs.get(contactId);
                 if (callLog != null) {
                     callLog.setTotalTalkTime(callLog.getTotalTalkTime() + callDuration);
