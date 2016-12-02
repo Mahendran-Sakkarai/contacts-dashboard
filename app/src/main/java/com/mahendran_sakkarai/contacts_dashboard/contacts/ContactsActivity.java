@@ -24,6 +24,7 @@ public class ContactsActivity extends AppCompatActivity implements
     private static final int MY_PERMISSIONS_REQUEST_READ_CALL_LOG = 1;
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 2;
     private ContactsPresenter mContactsPresenter;
+    private boolean isChecked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +76,11 @@ public class ContactsActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
 
-        checkCallLogPermission();
-
-        checkContactPermission();
+        if (!isChecked) {
+            checkCallLogPermission();
+            checkContactPermission();
+        }
+        isChecked = true;
     }
 
     @Override
