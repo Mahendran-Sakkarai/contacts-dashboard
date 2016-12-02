@@ -16,7 +16,7 @@ public interface DataContract {
     interface LoadCallLogs {
         void onLoad(List<MCallLog> callLogList);
 
-        void onDataNotLoaded();
+        void onDataNotLoaded(String errorMessage);
 
         void triggerLoadContacts();
 

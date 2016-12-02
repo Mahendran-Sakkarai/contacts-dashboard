@@ -77,6 +77,8 @@ public class DataSource implements DataContract {
                 mCallBack.triggerLoadContactsWithPhoneNumber(mContactIds.get(0));
 
             mContactRepeatCount = mContactIds.size();
+        } else {
+            mCallBack.onDataNotLoaded("No contacts found!!");
         }
     }
 
@@ -114,8 +116,10 @@ public class DataSource implements DataContract {
         if (mCallBack != null && --mContactRepeatCount == 0) {
             mCallBack.triggerLoadCallLogsByMobileNumber(mContactNumbersList.get(0));
             mGettingPhoneNumberRepeatCount = mContactNumbersList.size();
-        } else {
+        } else if (mContactIds.size() < mGettingPhoneNumberRepeatedCount){
             mCallBack.triggerLoadContactsWithPhoneNumber(mContactIds.get(mGettingPhoneNumberRepeatedCount));
+        } else {
+            mCallBack.onDataNotLoaded("No Contacts found!!");
         }
     }
 
@@ -176,10 +180,12 @@ public class DataSource implements DataContract {
                 for (ArrayList<String> contactIdList : contactIdsList)
                     mCallBack.triggerGetEmailFromContactId(contactIdList);
             } else {
-                mCallBack.onDataNotLoaded();
+                mCallBack.onDataNotLoaded("OOUCH!! No contacts found with the call logs.");
             }
-        } else {
+        } else if (mContactNumbersList.size() < mCallLogsRepeatedCount){
             mCallBack.triggerLoadCallLogsByMobileNumber(mContactNumbersList.get(mCallLogsRepeatedCount));
+        } else {
+            mCallBack.onDataNotLoaded("Issue on fetching call logs!!");
         }
     }
 
@@ -210,6 +216,8 @@ public class DataSource implements DataContract {
 
         if (mCallBack != null)
             mCallBack.onLoad(new ArrayList<>(mCallLogs.values()));
+        else
+            mCallBack.onDataNotLoaded("Issue on showing data!!");
     }
 
     @Override

@@ -53,8 +53,8 @@ public class ContactsPresenter implements ContactsContract.Presenter {
                 }
 
                 @Override
-                public void onDataNotLoaded() {
-                    mViewInstance.showNoDataAvailable();
+                public void onDataNotLoaded(String message) {
+                    mViewInstance.showNoDataAvailable(message);
                 }
 
                 @Override

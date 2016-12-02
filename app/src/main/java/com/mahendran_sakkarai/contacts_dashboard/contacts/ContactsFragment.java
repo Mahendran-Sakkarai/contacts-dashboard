@@ -1,18 +1,14 @@
 package com.mahendran_sakkarai.contacts_dashboard.contacts;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.CallLog;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +19,6 @@ import com.mahendran_sakkarai.contacts_dashboard.data.MCallLog;
 import com.mahendran_sakkarai.contacts_dashboard.utils.ApplicationUtils;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class ContactsFragment extends Fragment implements ContactsContract.View {
@@ -93,9 +88,8 @@ public class ContactsFragment extends Fragment implements ContactsContract.View 
     }
 
     @Override
-    public void showNoDataAvailable() {
-        mContactsRecyclerViewAdapter.showMessage(getContext()
-                .getString(R.string.no_data_found));
+    public void showNoDataAvailable(String message) {
+        mContactsRecyclerViewAdapter.showMessage(message);
     }
 
     @Override

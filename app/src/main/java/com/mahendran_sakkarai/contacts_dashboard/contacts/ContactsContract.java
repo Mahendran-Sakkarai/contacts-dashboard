@@ -15,7 +15,7 @@ public interface ContactsContract {
 
         void showCallLogs(List<MCallLog> callLogList);
 
-        void showNoDataAvailable();
+        void showNoDataAvailable(String message);
 
         void triggerLoadContacts();
 
