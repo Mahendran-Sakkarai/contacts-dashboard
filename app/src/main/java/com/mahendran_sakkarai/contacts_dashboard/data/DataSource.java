@@ -116,7 +116,8 @@ public class DataSource implements DataContract {
         if (mCallBack != null && --mContactRepeatCount == 0) {
             mCallBack.triggerLoadCallLogsByMobileNumber(mContactNumbersList.get(0));
             mGettingPhoneNumberRepeatCount = mContactNumbersList.size();
-        } else if (mContactIds.size() < mGettingPhoneNumberRepeatedCount){
+            mContactIds = new ArrayList<>();
+        } else if (mContactIds.size() > mGettingPhoneNumberRepeatedCount){
             mCallBack.triggerLoadContactsWithPhoneNumber(mContactIds.get(mGettingPhoneNumberRepeatedCount));
         } else {
             mCallBack.onDataNotLoaded("No Contacts found!!");
@@ -180,7 +181,8 @@ public class DataSource implements DataContract {
             } else if (mCallBack != null){
                 mCallBack.onDataNotLoaded("OOUCH!! No contacts found with the call logs.");
             }
-        } else if (mContactNumbersList.size() < mCallLogsRepeatedCount){
+            mContactNumbersList = new ArrayList<>();
+        } else if (mContactNumbersList.size() > mCallLogsRepeatedCount){
             mCallBack.triggerLoadCallLogsByMobileNumber(mContactNumbersList.get(mCallLogsRepeatedCount));
         } else {
             mCallBack.onDataNotLoaded("Issue on fetching call logs!!");
