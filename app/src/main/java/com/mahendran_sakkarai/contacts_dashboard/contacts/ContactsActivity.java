@@ -78,7 +78,6 @@ public class ContactsActivity extends AppCompatActivity implements
 
         if (!isChecked) {
             checkCallLogPermission();
-            checkContactPermission();
         }
         isChecked = true;
     }
@@ -98,6 +97,7 @@ public class ContactsActivity extends AppCompatActivity implements
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mContactsPresenter.callLogPermissionGranted();
+                    checkContactPermission();
                 } else {
                     mContactsPresenter.callLogPermissionDenied();
                 }
