@@ -179,7 +179,7 @@ public class DataSource implements DataContract {
             if (mCallBack != null && contactIdsList.size() > 0) {
                 for (ArrayList<String> contactIdList : contactIdsList)
                     mCallBack.triggerGetEmailFromContactId(contactIdList);
-            } else {
+            } else if (mCallBack != null){
                 mCallBack.onDataNotLoaded("OOUCH!! No contacts found with the call logs.");
             }
         } else if (mContactNumbersList.size() < mCallLogsRepeatedCount){
@@ -216,8 +216,6 @@ public class DataSource implements DataContract {
 
         if (mCallBack != null)
             mCallBack.onLoad(new ArrayList<>(mCallLogs.values()));
-        else
-            mCallBack.onDataNotLoaded("Issue on showing data!!");
     }
 
     @Override
