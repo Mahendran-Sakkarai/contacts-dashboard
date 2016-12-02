@@ -42,10 +42,6 @@ public class ContactsActivity extends AppCompatActivity implements
 
         mContactsPresenter = new ContactsPresenter(mContactsFragment, DataSource.newInstance(this),
                 this);
-
-        checkCallLogPermission();
-
-        checkContactPermission();
     }
 
     @Override

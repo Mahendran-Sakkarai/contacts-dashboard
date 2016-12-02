@@ -67,10 +67,11 @@ public class DataSource implements DataContract {
                     callLog.setContactId(contactId);
                     mCallLogs.put(contactId, callLog);
                     contactIds.add(contactId);
-                    if (contactIds.size() == 999 || contactsCursor.isLast()) {
-                        mContactIds.add(contactIds);
-                        contactIds = new ArrayList<>();
-                    }
+                }
+
+                if (contactIds.size() == 999 || contactsCursor.isLast()) {
+                    mContactIds.add(contactIds);
+                    contactIds = new ArrayList<>();
                 }
             }
             if (mCallBack != null && mContactIds.size() > 0)
