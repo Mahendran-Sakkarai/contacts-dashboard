@@ -54,7 +54,7 @@ public class ContactsPresenter implements ContactsContract.Presenter {
 
                 @Override
                 public void onDataNotLoaded(String message) {
-                    mViewInstance.showNoDataAvailable(message);
+                    mViewInstance.showErrorMessage(message);
                 }
 
                 @Override
@@ -90,7 +90,7 @@ public class ContactsPresenter implements ContactsContract.Presenter {
     @Override
     public void callLogPermissionDenied() {
         mCallLogPermission = false;
-        mActivityCommunicator.checkCallLogPermission();
+        mViewInstance.showErrorMessage("Call Log Permission is required to run this app! Could you please enable that in the settings!");
     }
 
     @Override
@@ -103,7 +103,7 @@ public class ContactsPresenter implements ContactsContract.Presenter {
     @Override
     public void contactPermissionDenied() {
         mContactPermission = false;
-        mActivityCommunicator.checkContactPermission();
+        mViewInstance.showErrorMessage("Contact Permission is required to run this app! Could you please enable that in the settings!");
     }
 
     @Override

@@ -76,6 +76,15 @@ public class ContactsActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        checkCallLogPermission();
+
+        checkContactPermission();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         DataSource.destroyInstance();

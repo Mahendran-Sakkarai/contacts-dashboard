@@ -88,7 +88,7 @@ public class ContactsFragment extends Fragment implements ContactsContract.View 
     }
 
     @Override
-    public void showNoDataAvailable(String message) {
+    public void showErrorMessage(String message) {
         mContactsRecyclerViewAdapter.showMessage(message);
     }
 
