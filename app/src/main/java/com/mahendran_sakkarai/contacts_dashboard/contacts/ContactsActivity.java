@@ -69,6 +69,7 @@ public class ContactsActivity extends AppCompatActivity implements
                     MY_PERMISSIONS_REQUEST_READ_CALL_LOG);
         } else {
             mContactsPresenter.callLogPermissionGranted();
+            checkContactPermission();
         }
     }
 
