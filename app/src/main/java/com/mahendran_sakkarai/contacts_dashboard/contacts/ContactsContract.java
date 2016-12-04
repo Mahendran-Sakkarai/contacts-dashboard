@@ -21,9 +21,9 @@ public interface ContactsContract {
 
         void triggerLoadContactsWithPhoneNumber(ArrayList<String> contactIds);
 
-        void triggerLoadCallLogsByMobileNumber(ArrayList<String> contactNumbers);
-
         void triggerGetEmailFromContactId(ArrayList<String> contactIds);
+
+        void triggerLoadCallLogsByName(ArrayList<String> contactNames);
     }
 
     interface Presenter extends BasePresenter {
@@ -45,7 +45,7 @@ public interface ContactsContract {
 
         void loadEmailByContactId(Cursor emailData);
 
-        void loadCallLogs(Cursor callLogs);
+        void loadCallLogsByName(Cursor data);
     }
 
     interface ActivityCommunicator{

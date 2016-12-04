@@ -34,6 +34,8 @@ public class ApplicationUtils {
     public static final int LOAD_CONTACTS_WITH_PHONE_NUMBER_LOADER = 2;
     public static final String CONTACT_NUMBER = "CONTACT_NUMBER";
     public static final int LOAD_CALL_LOG_BY_NUMBER_LOADER = 3;
+    public static final int LOAD_CALL_LOG_BY_NAME_LOADER = 4;
+    public static final String CONTACT_NAME = "CONTACT_NAME";
     public static final int LOAD_EMAIL_BY_CONTACT_ID = 4;
 
     /**

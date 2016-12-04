@@ -66,8 +66,8 @@ public class ContactsPresenter implements ContactsContract.Presenter {
                 }
 
                 @Override
-                public void triggerLoadCallLogsByMobileNumber(ArrayList<String> contactNumbers) {
-                    mViewInstance.triggerLoadCallLogsByMobileNumber(contactNumbers);
+                public void triggerLoadCallLogsByName(ArrayList<String> contactNames) {
+                    mViewInstance.triggerLoadCallLogsByName(contactNames);
                 }
 
                 @Override
@@ -125,7 +125,7 @@ public class ContactsPresenter implements ContactsContract.Presenter {
     }
 
     @Override
-    public void loadCallLogs(Cursor callLogs) {
-        mDataSource.loadCallLogs(callLogs);
+    public void loadCallLogsByName(Cursor data) {
+        mDataSource.loadCallLogsByName(data);
     }
 }

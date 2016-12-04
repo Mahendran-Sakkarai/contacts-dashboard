@@ -7,12 +7,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 
 public class DataSource implements DataContract {
@@ -20,9 +22,9 @@ public class DataSource implements DataContract {
     private final Context mContext;
     private HashMap<String, MCallLog> mCallLogs = new HashMap<>();
     private LoadCallLogs mCallBack;
-    private HashMap<String, String> mContactNumbers = new HashMap<>();
+    private HashMap<String, String> mContactNames = new HashMap<>();
     private ArrayList<ArrayList<String>> mContactIds = new ArrayList<>();
-    private ArrayList<ArrayList<String>> mContactNumbersList = new ArrayList<>();
+    private ArrayList<ArrayList<String>> mContactNamesList = new ArrayList<>();
     private int mCallLogsSize = 0;
     private int mContactRepeatCount = 0;
     private int mGettingPhoneNumberRepeatCount = 0;
@@ -48,9 +50,9 @@ public class DataSource implements DataContract {
     @Override
     public void loadContacts(Cursor contactsCursor) {
         mContactIds.clear();
-        mContactNumbersList.clear();
+        mContactNamesList.clear();
         mCallLogs.clear();
-        mContactNumbers.clear();
+        mContactNames.clear();
         mContactRepeatCount = 0;
         mGettingPhoneNumberRepeatCount = 0;
         mGettingPhoneNumberRepeatedCount = 0;
@@ -92,7 +94,7 @@ public class DataSource implements DataContract {
         mCallLogsSize = 1;
         mGettingPhoneNumberRepeatedCount++;
         mCallLogsRepeatedCount = 0;
-        ArrayList<String> contactNumbers = new ArrayList<>();
+        ArrayList<String> contactNames = new ArrayList<>();
         if (phoneNumberCursor != null && mCallLogs != null && !phoneNumberCursor.isClosed()) {
             int phoneKey = phoneNumberCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
             int contactIdKey = phoneNumberCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID);
@@ -100,30 +102,32 @@ public class DataSource implements DataContract {
             while (phoneNumberCursor.moveToNext()) {
                 String phoneNo = phoneNumberCursor.getString(phoneKey);
                 String contactId = phoneNumberCursor.getString(contactIdKey);
-                phoneNo = phoneNo.replaceAll("\\s+", "");
-                phoneNo = phoneNo.replace("-","");
                 // If the contact contains phone number add to callLog
                 MCallLog callLog = mCallLogs.get(contactId);
                 if (callLog != null && phoneNo != null) {
                     callLog.setContactNumber(phoneNo);
                     mCallLogs.put(contactId, callLog);
-                    contactNumbers.add(phoneNo);
-                    mContactNumbers.put(phoneNo, contactId);
+                    contactNames.add(callLog.getName());
+                    mContactNames.put(callLog.getName(), contactId);
+                    if (contactNames.size() == 999) {
+                        mContactNamesList.add(contactNames);
+                        contactNames = new ArrayList<>();
+                    }
                 } else {
                     mCallLogs.remove(contactId);
                 }
-                if (contactNumbers.size() == 999 || phoneNumberCursor.isLast()) {
-                    mContactNumbersList.add(contactNumbers);
-                    contactNumbers = new ArrayList<>();
+                if (phoneNumberCursor.isLast() && contactNames.size() > 0) {
+                    mContactNamesList.add(contactNames);
+                    contactNames = new ArrayList<>();
                 }
             }
         }
 
-        if (mCallBack != null && --mContactRepeatCount == 0) {
-            mGettingPhoneNumberRepeatCount = mContactNumbersList.size();
+        if (mContactNamesList.get(0).size() > 0 && mCallBack != null && --mContactRepeatCount == 0) {
+            mGettingPhoneNumberRepeatCount = mContactNamesList.size();
             mContactIds = new ArrayList<>();
-            mCallBack.triggerLoadCallLogsByMobileNumber(mContactNumbersList.get(0));
-        } else if (mContactIds.size() > mGettingPhoneNumberRepeatedCount){
+            mCallBack.triggerLoadCallLogsByName(mContactNamesList.get(0));
+        } else if (mContactIds.size() > mGettingPhoneNumberRepeatedCount) {
             mCallBack.triggerLoadContactsWithPhoneNumber(mContactIds.get(mGettingPhoneNumberRepeatedCount));
         } else {
             mCallBack.onDataNotLoaded("No Contacts found!!");
@@ -131,21 +135,55 @@ public class DataSource implements DataContract {
     }
 
     @Override
-    public void loadCallLogs(Cursor callLogCursor) {
+    public void loadEmailToContact(Cursor emailCursor) {
+        if (emailCursor != null && !emailCursor.isClosed()) {
+            int emailKey = emailCursor.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Email.DATA);
+            int contactIdKey = emailCursor.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Email.CONTACT_ID);
+            emailCursor.moveToFirst();
+            while (emailCursor.moveToNext()) {
+                try {
+                    String email = emailCursor.getString(emailKey);
+                    String contactId = emailCursor.getString(contactIdKey);
+                    if (email != null && email.length() != 0) {
+                        MCallLog callLog = mCallLogs.get(contactId);
+                        callLog.seteMail(email);
+                        mCallLogs.put(contactId, callLog);
+                        break;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        Iterator<String> iterator = mCallLogs.keySet().iterator();
+        while (iterator.hasNext()) {
+            String contactId = iterator.next();
+            MCallLog callLog = mCallLogs.get(contactId);
+            callLog.setBitmap(getContactImage(contactId));
+            mCallLogs.put(contactId, callLog);
+        }
+
+        if (mCallBack != null)
+            mCallBack.onLoad(new ArrayList<>(mCallLogs.values()));
+    }
+
+    @Override
+    public void loadCallLogsByName(Cursor callLogCursor) {
         mCallLogsSize++;
         mCallLogsRepeatedCount++;
         if (callLogCursor != null && !callLogCursor.isClosed()) {
             int dateKey = callLogCursor.getColumnIndex(CallLog.Calls.DATE);
             int durationKey = callLogCursor.getColumnIndex(CallLog.Calls.DURATION);
             int numberKey = callLogCursor.getColumnIndex(CallLog.Calls.NUMBER);
+            int nameKey = callLogCursor.getColumnIndex(CallLog.Calls.CACHED_NAME);
 
             callLogCursor.moveToFirst();
             while (callLogCursor.moveToNext()) {
                 long callDate = callLogCursor.getLong(dateKey);
                 long callDuration = callLogCursor.getLong(durationKey);
-                String number = callLogCursor.getString(numberKey);
-                number = number.replaceAll("\\s+", "");
-                String contactId = mContactNumbers.get(number);
+                String name = callLogCursor.getString(nameKey);
+                String contactId = mContactNames.get(name);
                 MCallLog callLog = mCallLogs.get(contactId);
                 if (callLog != null) {
                     callLog.setTotalTalkTime(callLog.getTotalTalkTime() + callDuration);
@@ -182,48 +220,20 @@ public class DataSource implements DataContract {
                 }
             }
 
-            mContactNumbersList = new ArrayList<>();
-            if (mCallBack != null && contactIdsList.size() > 0) {
-                for (ArrayList<String> contactIdList : contactIdsList)
-                    mCallBack.triggerGetEmailFromContactId(contactIdList);
-            } else if (mCallBack != null){
+            mContactNamesList = new ArrayList<>();
+            if (mCallLogs.size() > 0 && mCallBack != null && contactIdsList.size() > 0) {
+                for (ArrayList<String> contactIdList : contactIdsList) {
+                    if (contactIdList.size() > 0)
+                        mCallBack.triggerGetEmailFromContactId(contactIdList);
+                }
+            } else if (mCallBack != null) {
                 mCallBack.onDataNotLoaded("OOUCH!! No contacts found with the call logs.");
             }
-        } else if (mContactNumbersList.size() > mCallLogsRepeatedCount){
-            mCallBack.triggerLoadCallLogsByMobileNumber(mContactNumbersList.get(mCallLogsRepeatedCount));
+        } else if (mContactNamesList.size() > mCallLogsRepeatedCount) {
+            mCallBack.triggerLoadCallLogsByName(mContactNamesList.get(mCallLogsRepeatedCount));
         } else {
             mCallBack.onDataNotLoaded("Issue on fetching call logs!!");
         }
-    }
-
-    @Override
-    public void loadEmailToContact(Cursor emailCursor) {
-        if (emailCursor != null && !emailCursor.isClosed()) {
-            int emailKey = emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
-            int contactIdKey = emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID);
-            emailCursor.moveToFirst();
-            while (emailCursor.moveToNext()) {
-                String email = emailCursor.getString(emailKey);
-                String contactId = emailCursor.getString(contactIdKey);
-                if (email != null && email.length() != 0) {
-                    MCallLog callLog = mCallLogs.get(contactId);
-                    callLog.seteMail(email);
-                    mCallLogs.put(contactId, callLog);
-                    break;
-                }
-            }
-        }
-
-        Iterator<String> iterator = mCallLogs.keySet().iterator();
-        while (iterator.hasNext()) {
-            String contactId = iterator.next();
-            MCallLog callLog = mCallLogs.get(contactId);
-            callLog.setBitmap(getContactImage(contactId));
-            mCallLogs.put(contactId, callLog);
-        }
-
-        if (mCallBack != null)
-            mCallBack.onLoad(new ArrayList<>(mCallLogs.values()));
     }
 
     @Override

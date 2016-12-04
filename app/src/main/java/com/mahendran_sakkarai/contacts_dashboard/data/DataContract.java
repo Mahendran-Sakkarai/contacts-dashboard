@@ -13,6 +13,8 @@ public interface DataContract {
 
     void loadEmailToContact(Cursor emailData);
 
+    void loadCallLogsByName(Cursor data);
+
     interface LoadCallLogs {
         void onLoad(List<MCallLog> callLogList);
 
@@ -22,14 +24,12 @@ public interface DataContract {
 
         void triggerLoadContactsWithPhoneNumber(ArrayList<String> contactId);
 
-        void triggerLoadCallLogsByMobileNumber(ArrayList<String> contactNumbers);
+        void triggerLoadCallLogsByName(ArrayList<String> contactNames);
 
         void triggerGetEmailFromContactId(ArrayList<String> contactId);
     }
 
     void loadCallLogs(LoadCallLogs callback);
-
-    void loadCallLogs(Cursor callLogs);
 
     Bitmap getContactImage(String contactId);
 }

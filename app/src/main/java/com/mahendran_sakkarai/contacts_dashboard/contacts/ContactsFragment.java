@@ -165,46 +165,6 @@ public class ContactsFragment extends Fragment implements ContactsContract.View 
     }
 
     @Override
-    public void triggerLoadCallLogsByMobileNumber(ArrayList<String> contactNumbers) {
-        Bundle args = new Bundle();
-        args.putStringArrayList(ApplicationUtils.CONTACT_NUMBER, contactNumbers);
-        getLoaderManager().initLoader(ApplicationUtils.LOAD_CALL_LOG_BY_NUMBER_LOADER, args,
-                new LoaderManager.LoaderCallbacks<Cursor>() {
-                    @Override
-                    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-                        if (args != null) {
-                            String[] callLogProjection = new String[]{
-                                    CallLog.Calls.NUMBER,
-                                    CallLog.Calls.DATE,
-                                    CallLog.Calls.DURATION
-                            };
-                            ArrayList<String> contactNumbers = args.getStringArrayList(ApplicationUtils.CONTACT_NUMBER);
-                            if (contactNumbers != null) {
-                                return new CursorLoader(
-                                        getActivity(),
-                                        CallLog.Calls.CONTENT_URI,
-                                        callLogProjection,
-                                        CallLog.Calls.NUMBER + " IN (" + ApplicationUtils.makePlaceholders(contactNumbers.size()) + ")",
-                                        contactNumbers.toArray(new String[contactNumbers.size()]), null
-                                );
-                            }
-                        }
-                        return null;
-                    }
-
-                    @Override
-                    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                        mPresenter.loadCallLogs(data);
-                    }
-
-                    @Override
-                    public void onLoaderReset(Loader<Cursor> loader) {
-
-                    }
-                });
-    }
-
-    @Override
     public void triggerGetEmailFromContactId(ArrayList<String> contactIds) {
         Bundle args = new Bundle();
         args.putStringArrayList(ApplicationUtils.CONTACT_ID, contactIds);
@@ -234,6 +194,47 @@ public class ContactsFragment extends Fragment implements ContactsContract.View 
                     @Override
                     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
                         mPresenter.loadEmailByContactId(data);
+                    }
+
+                    @Override
+                    public void onLoaderReset(Loader<Cursor> loader) {
+
+                    }
+                });
+    }
+
+    @Override
+    public void triggerLoadCallLogsByName(ArrayList<String> contactNames) {
+        Bundle args = new Bundle();
+        args.putStringArrayList(ApplicationUtils.CONTACT_NAME, contactNames);
+        getLoaderManager().initLoader(ApplicationUtils.LOAD_CALL_LOG_BY_NAME_LOADER, args,
+                new LoaderManager.LoaderCallbacks<Cursor>() {
+                    @Override
+                    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+                        if (args != null) {
+                            String[] callLogProjection = new String[]{
+                                    CallLog.Calls.NUMBER,
+                                    CallLog.Calls.DATE,
+                                    CallLog.Calls.DURATION,
+                                    CallLog.Calls.CACHED_NAME
+                            };
+                            ArrayList<String> contactNames = args.getStringArrayList(ApplicationUtils.CONTACT_NAME);
+                            if (contactNames != null) {
+                                return new CursorLoader(
+                                        getActivity(),
+                                        CallLog.Calls.CONTENT_URI,
+                                        callLogProjection,
+                                        CallLog.Calls.CACHED_NAME + " IN (" + ApplicationUtils.makePlaceholders(contactNames.size()) + ")",
+                                        contactNames.toArray(new String[contactNames.size()]), null
+                                );
+                            }
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+                        mPresenter.loadCallLogsByName(data);
                     }
 
                     @Override
