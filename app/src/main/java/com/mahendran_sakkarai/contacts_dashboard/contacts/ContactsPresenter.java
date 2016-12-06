@@ -19,7 +19,6 @@ public class ContactsPresenter implements ContactsContract.Presenter {
     private boolean mContactPermission;
     private boolean mCallLogPermission;
     private boolean isStarted = false;
-    private List<MCallLog> mCallLogList = new ArrayList<>();
 
     public ContactsPresenter(ContactsContract.View contactsView, DataSource dataSource,
                              ContactsContract.ActivityCommunicator communicator) {
@@ -46,7 +45,6 @@ public class ContactsPresenter implements ContactsContract.Presenter {
                 @Override
                 public void onLoad(List<MCallLog> callLogList) {
                     Collections.sort(callLogList, new MCallLogComparator());
-                    mCallLogList = callLogList;
                     mViewInstance.showCallLogs(callLogList);
                 }
 

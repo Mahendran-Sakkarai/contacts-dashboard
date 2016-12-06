@@ -36,7 +36,7 @@ public class ApplicationUtils {
     public static final int LOAD_CALL_LOG_BY_NUMBER_LOADER = 3;
     public static final int LOAD_CALL_LOG_BY_NAME_LOADER = 4;
     public static final String CONTACT_NAME = "CONTACT_NAME";
-    public static final int LOAD_EMAIL_BY_CONTACT_ID = 4;
+    public static final int LOAD_EMAIL_BY_CONTACT_ID = 5;
 
     /**
      * The {@code fragment} is added to the container view with id {@code frameId}. The operation is
